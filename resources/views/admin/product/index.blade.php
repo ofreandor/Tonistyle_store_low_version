@@ -15,12 +15,12 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Category</h1>
+                    <h1>Product</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
-                        <li class="breadcrumb-item active">Category</li>
+                        <li class="breadcrumb-item active">Product</li>
                     </ol>
                 </div>
             </div>
@@ -35,15 +35,13 @@
 
                     <div class="card">
                         <div class="card-header d-flex justify-content-between">
-                            <h3 class="card-title py-2">All Tonistyle Store Product Categories Available</h3>
+                            <h3 class="card-title py-2">All Tonistyle Store Product products Available</h3>
                             <div class="ml-auto">
-                                <button type="button" class="btn btn-primary" data-toggle="modal"
-                                    data-target="#CategoryModal">
-                                    Add New Category
-                                </button>
+                                <a href="{{ route('create.product') }}" class="btn btn-primary">
+                                    Add New Product
+                                </a>
                             </div>
-
-                            @include('admin.category.add')
+                            {{-- @include('admin.product.add') --}}
                         </div>
 
                         <div class="card-body py-3">
@@ -51,43 +49,72 @@
                                 <thead>
                                     <tr>
                                         <th>S/N</th>
-                                        <th>Category Name</th>
-                                        <th>Category Status</th>
+                                        <th width="700px">Product Name</th>
+                                        <th width="700px">Image</th>
+                                        <th width="500px">Product Price</th>
+                                        <th>Product Brand</th>
+                                        <th>Product Category</th>
+                                        <th>Quantity</th>
+                                        <th>Color</th>
+                                        <th>Size</th>
+                                        <th>Discount</th>
+                                        <th>Status</th>
+                                        <th>Description</th>
                                         <th>Created Date</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
 
-
-                                    @foreach ($categories as $key => $category)
+                                    @foreach ($products as $key => $product)
 
                                     <tr>
                                         <td>{{ $key+1 }}</td>
-                                        <td>{{ $category->category_name }}</td>
+                                        <td>{{ $product->product_name }}</td>
                                         <td>
-                                            @if ($category->status == 'active')
-                                                <span class="badge bg-success">Active</span>
+                                            @if ($product->productImages->isNotEmpty())
+                                            <img src="{{ asset($product->productImages->first()->image_path) }}" alt="Product Image">
                                             @else
-                                                <span class="badge bg-danger">Inactive</span>
+                                            No Image Available
                                             @endif
                                         </td>
-                                        <td>{{ \Carbon\Carbon::parse($category->created_at)->format('jS M Y') }}</td>
+                                        <td>&#8358; {{number_format($product->price) }}</td>
+                                        <td>{{ $product->brand->brand_name }}</td>
+                                        <td>{{ $product->category->category_name }}</td>
+                                        <td>{{ $product->quantity }}</td>
+                                        <td>{{ $product->color }}</td>
+                                        <td>{{ $product->size }}</td>
+                                        <td>{{ $product->discount }}</td>
                                         <td>
-
+                                            @if ($product->product_status == 'active')
+                                            <span class="badge bg-success">Active</span>
+                                            @else
+                                            <span class="badge bg-danger">Inactive</span>
+                                            @endif
+                                        </td>
+                                        <td>{{ $product->description }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($product->created_at)->format('jS M Y') }}</td>
+                                        <td>
                                             <div style="display: flex; align-items: center;">
+                                                <a type="button" data-toggle="modal"
+                                                    data-target="#editproductModal{{ $product->id }}" class="edit_cat">
+                                                    <i class="fas fa-edit mr-3 text-secondary"></i>
+                                                </a>
+                                                @include('admin.product.edit')
 
-                                               <a type="button" data-toggle="modal" data-target="#editcategoryModal{{ $category->id }}"  class="edit_cat">
-                                                <i class="fas fa-edit mr-3 text-secondary"></i>
-                                              </a>
-
-                                              @include('admin.category.edit')
+                                                <form action="{{ route('delete.product', $product->id) }}" method="POST" id="deleteForm">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <a type="submit" onclick="confirmDelete({{$product->id}})">
+                                                        <i class="fas fa-trash-alt text-danger"></i>
+                                                    </a>
+                                                </form>
+                                            </div>
                                         </td>
 
                                     </tr>
 
                                     @endforeach
-
                                 </tbody>
 
                             </table>
@@ -105,15 +132,14 @@
 
 </div>
 
+
 @endsection
 
 
 
 @section('admin.scripts')
 <script src="{{ asset('backend/plugins/jquery/jquery.min.js') }}"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
-    integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 <script src="{{ asset('backend/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('backend/plugins/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('backend/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
@@ -162,42 +188,13 @@
                         confirmButtonText: 'Yes, delete it!'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            document.getElementById('deleteForm').action = '/delete/category/' + id;
+                            document.getElementById('deleteForm').action = '/delete/product/' + id;
                             document.getElementById('deleteForm').submit();
                         }
                     });
                 }
 </script>
 
-<script type="text/javascript">
-    $(document).ready(function() {
-    $('.edit_cat').click(function() {
-    var categoryId = $(this).data('id');
-    $.get('/category/' + categoryId, function(data) {
-    $('#name').val(data.name);
-    $('#editForm').attr('action', '/category/' + categoryId);
-    $('#editcategoryModal').modal('show');
-    });
-    });
 
-    $('#editForm').submit(function(e) {
-    e.preventDefault();
-        var formData = $(this).serialize();
-        var url = $(this).attr('action');
-    $.ajax({
-            type: 'PUT',
-            url: url,
-            data: formData,
-            success: function(response) {
-            $('#editModal').modal('hide');
-            // Handle success
-            },
-            error: function(xhr, status, error) {
-         // Handle error
-            }
-         });
-      });
-    });
-</script>
 
 @endsection

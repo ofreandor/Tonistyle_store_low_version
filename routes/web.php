@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WebsiteController;
 use App\Http\Controllers\CategoryController;
@@ -53,6 +54,13 @@ Route::middleware(['admin'])->group(function () {
     Route::delete('/delete/category/{id}', [CategoryController::class, 'destroy'])->name('delete.category');
     Route::put('/category/{id}', [CategoryController::class, 'update'])->name('category.update');
 
+    // Product
+
+    Route::get('/product', [ProductController::class, 'index'])->name('product');
+    Route::get('/create/product', [ProductController::class, 'create'])->name('create.product');
+    Route::post('/add/product', [ProductController::class, 'store'])->name('store.product');
+    Route::delete('/delete/product/{id}', [ProductController::class, 'destroy'])->name('delete.product');
+    Route::put('/product/{id}', [ProductController::class, 'update'])->name('product.update');
 
 
 });
